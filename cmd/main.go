@@ -1,27 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/jheader/golang_blog/config"
-	"github.com/jheader/golang_blog/model"
+	"github.com/jheader/golang_blog/routes"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func main() {
 
 	// 初始化日志
-	fmt.Println("Starting blog application...")
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.Info("Starting blog application...")
 	//加载配置
 	config.InitViper()
 	// 初始化数据库
 	config.InitDB()
 
-	var existingUser model.User
-	if err := config.DB.Where("username = ?", "").First(&existingUser).Error; err == nil {
-		fmt.Println("err=", err)
-		return
-	}
+	// 设置路由
+	r := routes.SetupRoutes()
 
-	// 执行生成，复制输出作为你的 JWT_SECRET
-	fmt.Println("JWT_SECRET=", existingUser)
+	port := viper.GetString("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	port = ":" + port
+
+	if err := r.Run(port); err != nil {
+		log.Fatal("Failed to start server:", err)
+	}
 }
