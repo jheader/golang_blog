@@ -26,7 +26,7 @@ func GenerateToken(userID uint, username string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(viper.Get("JWT_SECRET"))
+	return token.SignedString([]byte(viper.GetString("JWT_SECRET")))
 
 }
 
