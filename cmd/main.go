@@ -12,6 +12,7 @@ import (
 func main() {
 
 	// 初始化日志
+	logrus.SetLevel(logrus.InfoLevel)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.Info("Starting blog application...")
 	//加载配置

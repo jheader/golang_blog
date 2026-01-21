@@ -54,3 +54,8 @@ func NotFound(c *gin.Context, message string) {
 func InternalServerError(c *gin.Context, message string) {
 	Error(c, http.StatusInternalServerError, message)
 }
+
+// 用户不存在 600错误
+func UserNotExsit(c *gin.Context) {
+	Error(c, 600, "user no exist")
+}

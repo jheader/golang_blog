@@ -15,6 +15,11 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
 
+type LoginRequest struct {
+	Username string `json:"username" binding:"required,min=3,max=20"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
 func (ac *AuthController) Register(c *gin.Context) {
 
 	var req RegisterRequest
@@ -62,6 +67,37 @@ func (ac *AuthController) Register(c *gin.Context) {
 	utils.Success(c, map[string]any{
 		"Token": token,
 		"User":  user,
+	})
+
+}
+
+func (ac *AuthController) Login(c *gin.Context) {
+
+	var req LoginRequest
+
+	err := c.Bind(&req)
+	if err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+
+	//查询用户是否存在
+	u, err := model.GetUserByUsername(req.Username, config.DB)
+	if err != nil {
+		utils.UserNotExsit(c)
+		return
+	}
+
+	// 生成JWT token
+	token, err := utils.GenerateToken(u.ID, u.Username)
+	if err != nil {
+		utils.InternalServerError(c, "Failed to generate token")
+		return
+	}
+
+	utils.Success(c, map[string]any{
+		"Token": token,
+		"User":  u,
 	})
 
 }
