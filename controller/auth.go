@@ -28,7 +28,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 	//查询用户是否存在
 	u, err := model.GetUserByUsername(req.Username, config.DB)
 	if err == nil {
-		utils.BadRequest(c, *&u.Username+"already exists")
+		utils.BadRequest(c, (*u).Username+"already exists")
 		return
 	}
 

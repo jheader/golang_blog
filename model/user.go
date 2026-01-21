@@ -43,9 +43,9 @@ func GetUserByUsername(username string, db *gorm.DB) (*User, error) {
 	result := db.Where("username = ?", username).First(&u)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("用户不存在（username: %s）：%w", username, result.Error)
+			return nil, fmt.Errorf("用户不存在(username: %s):%w", username, result.Error)
 		}
-		return nil, fmt.Errorf("查询用户失败（username: %s）：%w", username, result.Error)
+		return nil, fmt.Errorf("查询用户失败(username: %s):%w", username, result.Error)
 	}
 	return &u, nil
 }
@@ -54,7 +54,7 @@ func (u *User) Save(db *gorm.DB) error {
 
 	result := db.Create(u)
 	if result.Error != nil {
-		return fmt.Errorf("创建（username: %s）：%w", &u.Username, result.Error)
+		return fmt.Errorf("创建(sername: %s):%w", (*u).Username, result.Error)
 	}
 
 	return nil
