@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -65,6 +66,75 @@ func (p *PostController) CreateOrUpdate(c *gin.Context) {
 	}
 
 	utils.Success(c, "新增数据成功")
-	return
+
+}
+
+// 查询全部文章 支持分页
+func (p *PostController) GetAllPosts(c *gin.Context) {
+
+	var posts []model.Post
+	pageStr := c.DefaultQuery("page", "1") // 默认第1页
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1 // 解析失败或页码无效，默认第1页
+	}
+
+	sizeStr := c.DefaultQuery("size", "10") // 默认每页10条
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 || size > 100 {
+		size = 10 // 解析失败或条数无效，默认10条（限制最大100）
+	}
+	var total int64
+	// 步骤1：统计总条数（不含 LIMIT/OFFSET）
+	if err := config.DB.Model(&model.Post{}).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "统计文章总数失败：" + err.Error(),
+			"data": nil,
+		})
+		return
+	}
+	// 步骤2：使用分页中间件查询当前页数据
+	if err := config.DB.Preload("User").Preload("Comments").Scopes(utils.Paginate(page, size)).Find(&posts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "查询文章列表失败：" + err.Error(),
+			"data": nil,
+		})
+		return
+	}
+
+	// 3. 构建分页响应（使用工具类统一格式）
+	pageResp := utils.NewPageResponse(posts, total, page, size)
+
+	// 4. 成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "查询成功",
+		"data": pageResp,
+	})
+}
+
+// 查询单个文章的详细信息。
+func (p *PostController) GetPostById(c *gin.Context) {
+
+	// 1. 解析路由参数（post_id）
+	postIDStr := c.Param("post_id")
+	postID, err := strconv.ParseUint(postIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "文章ID格式错误（必须为数字）",
+			"data": nil,
+		})
+		return
+	}
+	var post model.Post
+	if err := config.DB.Preload("User").Preload("Comments").First(&post, postID).Error; err != nil {
+		utils.BadRequest(c, "查询文章失败："+err.Error())
+		return
+	}
+
+	utils.Success(c, post)
 
 }

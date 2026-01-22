@@ -47,11 +47,11 @@ func SetupRoutes() *gin.Engine {
 		public := api.Group("")
 		{
 			// 文章公开路由获取所有文章列表和
-			public.GET("/posts", func(ctx *gin.Context) {})
+			public.GET("/posts", (&controller.PostController{}).GetAllPosts)
 			//单个文章的详细信息
-			public.GET("/posts/:post_id", func(ctx *gin.Context) {})
+			public.GET("/posts/:post_id", (&controller.PostController{}).GetPostById)
 			//获取某篇文章的所有评论列表。
-			public.GET("/posts/:post_id/comments", func(ctx *gin.Context) {})
+			public.GET("/posts/commentsByPostId", func(ctx *gin.Context) {})
 		}
 
 		// 健康检查
