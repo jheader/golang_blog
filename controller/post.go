@@ -28,7 +28,11 @@ func (p *PostController) CreateOrUpdate(c *gin.Context) {
 	}
 	if req.ID != nil {
 		postID := *req.ID
-		checkIsOwner(uint64(postID), c)
+
+		if !checkIsOwner(uint64(postID), c) {
+			// 检查不通过，直接返回
+			return
+		}
 		//方式1：使用结构体更新（仅更新非零值字段） 2使用 map 更新（更新所有指定字段，包括零值）
 		if config.DB.Model(&model.Post{}).Where("id = ?", postID).Updates(model.Post{
 			Title:   req.Title,
@@ -141,7 +145,10 @@ func (p *PostController) DeletedById(c *gin.Context) {
 		return
 	}
 
-	checkIsOwner(postID, c)
+	if !checkIsOwner(postID, c) {
+		// 检查不通过，直接返回
+		return
+	}
 	var post model.Post
 	result := config.DB.Delete(&post, postID)
 
@@ -167,19 +174,20 @@ func (p *PostController) DeletedById(c *gin.Context) {
 
 }
 
-func checkIsOwner(postID uint64, c *gin.Context) {
+func checkIsOwner(postID uint64, c *gin.Context) bool {
 
 	//检查是否是自己的文章
 	var post model.Post
 	// 用 First 替代 Find（按主键查询单条数据，未找到会返回 ErrRecordNotFound）
 	if err := config.DB.Preload("User").First(&post, postID).Error; err != nil {
 		utils.BadRequest(c, "not found post id"+strconv.FormatUint(postID, 10)+"的数据")
-		return
+		return false
 	}
 	currentUsername, _ := c.Get("current_username")
 	userna, _ := currentUsername.(string) // 断言为结构体类型
 	if userna != post.User.Username {
 		utils.BadRequest(c, "不能修改用户"+post.User.Username+"的数据")
-		return
+		return false
 	}
+	return true
 }
