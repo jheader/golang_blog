@@ -29,7 +29,7 @@ func SetupRoutes() *gin.Engine {
 			//文章
 			postsRout := authenticated.Group("/posts")
 			{ //发表或者更新
-				postsRout.POST("/saveOrUpdate", func(ctx *gin.Context) {})
+				postsRout.POST("/saveOrUpdate", (&controller.PostController{}).CreateOrUpdate)
 				//删除
 				postsRout.DELETE("/:id", func(ctx *gin.Context) {})
 

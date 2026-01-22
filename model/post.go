@@ -18,3 +18,9 @@ type Post struct {
 	User     User      `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	Comments []Comment `json:"comments,omitempty" gorm:"foreignKey:PostID"`
 }
+
+// 如果没有错误信息 就是保存更新成，更新是有ID加自己文章才能更新
+func (p *Post) SaveOrUpdate(db *gorm.DB) error {
+
+	return nil
+}

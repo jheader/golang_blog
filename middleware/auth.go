@@ -35,7 +35,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// 将用户信息存储到上下文中
 		ctx.Set("user_id", claims.UserID)
-		ctx.Set("username", claims.Username)
+		ctx.Set("current_username", claims.Username)
 
 		ctx.Next()
 
