@@ -31,13 +31,13 @@ func SetupRoutes() *gin.Engine {
 			{ //发表或者更新
 				postsRout.POST("/saveOrUpdate", (&controller.PostController{}).CreateOrUpdate)
 				//删除
-				postsRout.DELETE("/:id", func(ctx *gin.Context) {})
+				postsRout.DELETE("/:id", (&controller.PostController{}).DeletedById)
 
 			}
 			//评论授权路由 实现评论的创建功能，已认证的用户可以对文章发表评论。
-			addcomment := authenticated.Group("/posts/:post_id/comments")
+			addcomment := authenticated.Group("/posts/:post_id/comment")
 			{
-				addcomment.POST("", func(ctx *gin.Context) {})
+				addcomment.POST("", (&controller.CommentController{}).CreateComment)
 
 			}
 

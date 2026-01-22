@@ -27,20 +27,8 @@ func (p *PostController) CreateOrUpdate(c *gin.Context) {
 		return
 	}
 	if req.ID != nil {
-		//检查是否是自己的文章
-		var post model.Post
 		postID := *req.ID
-		// 用 First 替代 Find（按主键查询单条数据，未找到会返回 ErrRecordNotFound）
-		if err := config.DB.Preload("User").First(&post, postID).Error; err != nil {
-			utils.BadRequest(c, "not found post id"+strconv.FormatUint(uint64(postID), 10)+"的数据")
-			return
-		}
-		currentUsername, _ := c.Get("current_username")
-		userna, _ := currentUsername.(string) // 断言为结构体类型
-		if userna != post.User.Username {
-			utils.BadRequest(c, "不能修改用户"+post.User.Username+"的数据")
-			return
-		}
+		checkIsOwner(uint64(postID), c)
 		//方式1：使用结构体更新（仅更新非零值字段） 2使用 map 更新（更新所有指定字段，包括零值）
 		if config.DB.Model(&model.Post{}).Where("id = ?", postID).Updates(model.Post{
 			Title:   req.Title,
@@ -137,4 +125,61 @@ func (p *PostController) GetPostById(c *gin.Context) {
 
 	utils.Success(c, post)
 
+}
+
+func (p *PostController) DeletedById(c *gin.Context) {
+
+	// 1. 解析路由参数（post_id）
+	postIDStr := c.Param("post_id")
+	postID, err := strconv.ParseUint(postIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "文章ID格式错误（必须为数字）",
+			"data": nil,
+		})
+		return
+	}
+
+	checkIsOwner(postID, c)
+	var post model.Post
+	result := config.DB.Delete(&post, postID)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "删除文章失败：" + result.Error.Error(),
+			"data": nil,
+		})
+		return
+	}
+
+	// 检查是否有数据被删除
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code": 404,
+			"msg":  "文章不存在或已被删除",
+			"data": nil,
+		})
+		return
+	}
+	utils.Success(c, "删除数据成功")
+
+}
+
+func checkIsOwner(postID uint64, c *gin.Context) {
+
+	//检查是否是自己的文章
+	var post model.Post
+	// 用 First 替代 Find（按主键查询单条数据，未找到会返回 ErrRecordNotFound）
+	if err := config.DB.Preload("User").First(&post, postID).Error; err != nil {
+		utils.BadRequest(c, "not found post id"+strconv.FormatUint(postID, 10)+"的数据")
+		return
+	}
+	currentUsername, _ := c.Get("current_username")
+	userna, _ := currentUsername.(string) // 断言为结构体类型
+	if userna != post.User.Username {
+		utils.BadRequest(c, "不能修改用户"+post.User.Username+"的数据")
+		return
+	}
 }
