@@ -23,37 +23,34 @@
 | bcrypt   | 密码加密算法 |
 
 ## 项目结构
-
 golang_blog/
 ├── cmd/
-│ └── main.go # 程序入口
+│   └── main.go          # 程序入口
 ├── config/
-│ └── database.go # 数据库配置（连接、迁移）
+│   └── database.go      # 数据库配置（连接、迁移）
 ├── controllers/
-│ ├── auth.go # 认证控制器（注册 / 登录 / 个人信息）
-│ ├── post.go # 文章控制器（CRUD）
-│ └── comment.go # 评论控制器（查询 / 创建）
+│   ├── auth.go          # 认证控制器（注册/登录/个人信息）
+│   ├── post.go          # 文章控制器（CRUD）
+│   └── comment.go       # 评论控制器（查询/创建）
 ├── middleware/
-│ ├── auth.go # JWT 认证中间件（接口鉴权）
-│ ├── ErrorHandle.go # 全局异常处理中间件
-│ └── logger.go # 日志中间件（请求 / 响应记录）
+│   ├── auth.go          # JWT认证中间件（接口鉴权）
+│   ├── ErrorHandle.go   # 全局异常处理中间件
+│   └── logger.go        # 日志中间件（请求/响应记录）
 ├── models/
-│ ├── user.go # 用户模型（Users 表映射）
-│ ├── post.go # 文章模型（Posts 表映射）
-│ └── comment.go # 评论模型（Comments 表映射）
+│   ├── user.go          # 用户模型（Users表映射）
+│   ├── post.go          # 文章模型（Posts表映射）
+│   └── comment.go       # 评论模型（Comments表映射）
 ├── routes/
-│ └── routes.go # 路由配置（接口路由注册）
+│   └── routes.go        # 路由配置（接口路由注册）
 ├── utils/
-│ ├── jwt.go # JWT 工具（生成 / 解析 Token）
-│ ├── pageresponse.go # 分页响应格式化
-│ ├── paginate.go # 分页查询逻辑
-│ └── response.go # 统一 API 响应格式
-├── .env # 环境配置（数据库、JWT 密钥等）
-├── go.mod # 依赖管理
-├── go.sum # 依赖校验
-└── README.md # 项目说明文档
-
-
+│   ├── jwt.go           # JWT工具（生成/解析Token）
+│   ├── pageresponse.go  # 分页响应格式化
+│   ├── paginate.go      # 分页查询逻辑
+│   └── response.go      # 统一API响应格式
+├── .env                 # 环境配置（数据库、JWT密钥等）
+├── go.mod               # 依赖管理
+├── go.sum               # 依赖校验
+└── README.md            # 项目说明文档
 
 ## 数据库设计
 ### Users 表（用户表）
@@ -171,7 +168,7 @@ curl --location 'http://172.30.185.210:8080/api/v1/posts/saveOrUpdate' \
     "content": "这是个更新测试112"
 }'
 
-### 总结
+## 总结
 1. 内容完整覆盖项目核心信息：功能、技术栈、结构、数据库、接口、运行方式、使用示例；
 2. 格式严格遵循 Markdown 标准，兼容所有主流平台的渲染规则；
 3. 复制后直接保存为 `README.md` 即可使用，无需额外调整格式。
