@@ -23,6 +23,7 @@
 | bcrypt   | 密码加密算法 |
 
 ## 📁 项目结构
+```
 golang_blog/
 ├── cmd/
 │   └── main.go          # 程序入口
@@ -51,8 +52,7 @@ golang_blog/
 ├── go.mod               # 依赖管理
 ├── go.sum               # 依赖校验
 └── README.md            # 项目说明文档
-
-## 📁 项目结构
+```
 
 ## 数据库设计
 ### Users 表（用户表）
